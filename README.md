@@ -273,3 +273,27 @@ This repository does not redistribute BigQuery public datasets.
 
 The example queries reference public datasets available through Google BigQuery.
 Those datasets remain subject to their original provider terms.
+
+## FastAPI Wrapper
+
+This repository includes a FastAPI wrapper for the controlled analyst tools.
+
+Run locally:
+
+    uvicorn app.main:app --host 0.0.0.0 --port 8080
+
+Open API docs:
+
+    http://127.0.0.1:8080/docs
+
+Core endpoints:
+
+    GET  /
+    GET  /health
+    GET  /datasets
+    GET  /tables
+    GET  /schema/{table_key}
+    POST /query
+    GET  /audit
+
+See [API Reference](docs/api.md) for request and response examples.
