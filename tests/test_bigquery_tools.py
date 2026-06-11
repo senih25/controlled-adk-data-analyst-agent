@@ -1,3 +1,11 @@
+import os
+import pytest
+
+pytestmark = pytest.mark.skipif(
+    os.getenv("RUN_BIGQUERY_INTEGRATION_TESTS") != "1",
+    reason="BigQuery integration tests require credentials and RUN_BIGQUERY_INTEGRATION_TESTS=1",
+)
+
 from data_analyst_agent.tools.bigquery_tools import (
     list_allowed_tables,
     get_table_schema,
