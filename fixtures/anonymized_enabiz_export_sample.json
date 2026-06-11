@@ -1,0 +1,75 @@
+{
+  "schema_version": "anonymized-enabiz-analytics-v0.1",
+  "source": "enabiz-local-health-assistant",
+  "export_type": "aggregate_analytics",
+  "generated_at": "2026-06-11T00:00:00Z",
+  "privacy": {
+    "phi_free": true,
+    "raw_text_included": false,
+    "pseudonymized": true,
+    "notes": "Aggregate analytics only. No raw clinical text or direct identifiers."
+  },
+  "cohort": {
+    "case_count": 1,
+    "date_min": "2021-01-01",
+    "date_max": "2026-06-01"
+  },
+  "category_counts": {
+    "diagnoses": 32,
+    "lab_results": 18,
+    "imaging_reports": 25,
+    "prescriptions": 11,
+    "procedures": 9,
+    "epicrisis": 2,
+    "pathology": 1,
+    "official_reports": 4
+  },
+  "diagnosis_frequency": [
+    {
+      "code": "M17",
+      "count": 4
+    },
+    {
+      "code": "I10",
+      "count": 3
+    },
+    {
+      "code": "E11",
+      "count": 2
+    }
+  ],
+  "document_completeness": [
+    {
+      "document_type": "official_reports",
+      "status": "available",
+      "count": 4
+    },
+    {
+      "document_type": "epicrisis",
+      "status": "weak",
+      "count": 2
+    },
+    {
+      "document_type": "pathology",
+      "status": "available",
+      "count": 1
+    },
+    {
+      "document_type": "recent_lab_results",
+      "status": "missing",
+      "count": 0
+    }
+  ],
+  "timeline_completeness": {
+    "events_total": 102,
+    "events_with_date": 98,
+    "coverage_ratio": 0.96
+  },
+  "data_quality": {
+    "score": 0.86,
+    "flags": [
+      "recent_lab_results_missing",
+      "epicrisis_count_low"
+    ]
+  }
+}
