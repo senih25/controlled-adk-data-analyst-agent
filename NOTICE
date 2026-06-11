@@ -1,0 +1,15 @@
+Controlled ADK Data Analyst Agent
+Copyright 2026 Senih BAYANKULU
+
+This project is licensed under the Apache License, Version 2.0.
+
+This repository contains a controlled data analyst agent built with Google ADK,
+custom BigQuery tools, SQL guardrails, audit logging, and tests.
+
+The project uses third-party dependencies that are licensed separately by their
+respective owners.
+
+Google Agent Development Kit (ADK) is licensed under the Apache License 2.0.
+
+BigQuery public datasets referenced by this project are not redistributed in
+this repository and remain subject to their original provider terms.

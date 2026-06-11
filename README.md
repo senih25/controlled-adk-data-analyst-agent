@@ -258,3 +258,18 @@ Phase 3 in progress:
 - Test suite added
 - Packaging files added
 - GitHub-ready cleanup in progress
+
+## License
+
+This project is licensed under the Apache License, Version 2.0.
+
+See the LICENSE file for details.
+
+Copyright 2026 Senih BAYANKULU.
+
+## Data Disclaimer
+
+This repository does not redistribute BigQuery public datasets.
+
+The example queries reference public datasets available through Google BigQuery.
+Those datasets remain subject to their original provider terms.
