@@ -347,3 +347,25 @@ Example response fields:
     }
 
 See [e-Nabiz Export Contract](docs/enabiz_export_contract.md) for the privacy boundary.
+
+## Real e-Nabiz Export Adapter Plan
+
+The next integration step is to generate a real PHI-free aggregate export from `enabiz-local-health-assistant`.
+
+Producer:
+
+    enabiz-local-health-assistant
+
+Consumer:
+
+    controlled-adk-data-analyst-agent
+
+Planned producer module:
+
+    src/exporters/anonymized_analytics_export.py
+
+Planned export output:
+
+    exports/anonymized/anonymized_enabiz_analytics.json
+
+See [e-Nabiz Real Export Adapter Plan](docs/enabiz_export_adapter_plan.md).
