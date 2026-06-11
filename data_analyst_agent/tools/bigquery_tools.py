@@ -15,7 +15,16 @@ from data_analyst_agent.tools.guardrails import (
     query_uses_only_allowed_tables,
 )
 
-BQ_CLIENT = bigquery.Client(project=PROJECT_ID)
+_BQ_CLIENT = None
+
+
+def get_bq_client() -> bigquery.Client:
+    """Create the BigQuery client lazily so unit tests can import this module without ADC."""
+    global _BQ_CLIENT
+    if _BQ_CLIENT is None:
+        _BQ_CLIENT = bigquery.Client(project=PROJECT_ID)
+    return _BQ_CLIENT
+
 
 
 def list_allowed_datasets() -> dict:
@@ -57,7 +66,7 @@ def list_cms_medicare_tables(limit: int = 10) -> dict:
     LIMIT {int(limit)}
     """
 
-    rows = BQ_CLIENT.query(query).result()
+    rows = get_bq_client().query(query).result()
 
     result = {
         "dataset": "bigquery-public-data.cms_medicare",
@@ -93,7 +102,7 @@ def get_table_schema(table_key_or_id: str) -> dict:
             "allowed_tables": ALLOWED_TABLES,
         }
 
-    table = BQ_CLIENT.get_table(table_id)
+    table = get_bq_client().get_table(table_id)
 
     result = {
         "status": "success",
@@ -136,7 +145,7 @@ def top_5_drg_by_discharges() -> dict:
     LIMIT 5
     """
 
-    rows = BQ_CLIENT.query(query).result()
+    rows = get_bq_client().query(query).result()
 
     result = {
         "source_table": "bigquery-public-data.cms_medicare.inpatient_charges_2015",
@@ -192,7 +201,7 @@ def run_safe_select_query(sql: str) -> dict:
         use_query_cache=False,
     )
 
-    dry_run_job = BQ_CLIENT.query(safe_sql, job_config=dry_run_config)
+    dry_run_job = get_bq_client().query(safe_sql, job_config=dry_run_config)
     bytes_processed = dry_run_job.total_bytes_processed
 
     if bytes_processed > MAX_BYTES_PROCESSED:
@@ -209,7 +218,7 @@ def run_safe_select_query(sql: str) -> dict:
             "max_bytes_processed": MAX_BYTES_PROCESSED,
         }
 
-    rows = BQ_CLIENT.query(safe_sql).result()
+    rows = get_bq_client().query(safe_sql).result()
 
     result_rows = [dict(row.items()) for row in rows]
 
