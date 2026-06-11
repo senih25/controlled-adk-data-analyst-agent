@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import FastAPI, HTTPException, Query
 
-from app.schemas import HealthResponse, QueryRequest, QueryResponse
+from app.schemas import EnabizExportPathRequest, HealthResponse, QueryRequest, QueryResponse
 from app.services.analyst_service import (
     audit_tail,
     datasets,
@@ -11,6 +11,7 @@ from app.services.analyst_service import (
     query,
     schema,
     tables,
+    summarize_enabiz_export_path,
 )
 
 
@@ -91,3 +92,8 @@ def get_top_5_drg() -> dict:
 @app.get("/audit")
 def get_audit(limit: int = Query(default=50, ge=1, le=500)) -> dict:
     return audit_tail(limit=limit)
+
+@app.post("/connectors/enabiz/summarize")
+def summarize_enabiz_export(payload: EnabizExportPathRequest) -> dict:
+    return summarize_enabiz_export_path(payload.path)
+

@@ -19,3 +19,7 @@ class HealthResponse(BaseModel):
     status: str
     service: str
     version: str
+
+class EnabizExportPathRequest(BaseModel):
+    path: str = Field(..., min_length=1)
+

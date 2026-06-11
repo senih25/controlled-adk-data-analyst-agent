@@ -47,3 +47,16 @@ def test_audit_endpoint():
     data = response.json()
     assert data["status"] == "success"
     assert "entries" in data
+
+def test_enabiz_connector_summarize_endpoint():
+    response = client.post(
+        "/connectors/enabiz/summarize",
+        json={"path": "fixtures/anonymized_enabiz_export_sample.json"},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert data["safe_for_agent_analysis"] is True
+    assert data["data_quality_score"] == 0.86
+    assert len(data["missing_or_weak_documents"]) == 2
+

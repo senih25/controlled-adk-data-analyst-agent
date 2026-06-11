@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from connectors.enabiz_export import load_and_summarize_enabiz_export
 from data_analyst_agent.tools.bigquery_tools import (
     list_allowed_tables,
     get_table_schema,
@@ -67,3 +68,7 @@ def audit_tail(limit: int = 50) -> dict[str, Any]:
         "path": str(AUDIT_LOG_PATH),
         "entries": lines[-limit:],
     }
+
+def summarize_enabiz_export_path(path: str) -> dict[str, Any]:
+    return load_and_summarize_enabiz_export(path)
+
