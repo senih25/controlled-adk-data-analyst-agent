@@ -21,6 +21,21 @@ app = FastAPI(
 )
 
 
+
+@app.get("/")
+def root() -> dict:
+    return {
+        "status": "ok",
+        "service": "Controlled ADK Data Analyst Agent API",
+        "docs": "/docs",
+        "health": "/health",
+        "datasets": "/datasets",
+        "tables": "/tables",
+        "audit": "/audit",
+        "query": "/query",
+    }
+
+
 @app.get("/health", response_model=HealthResponse)
 def get_health() -> dict[str, str]:
     return health()
@@ -53,12 +68,17 @@ def run_query(payload: QueryRequest) -> dict:
             "reason": result.get("reason"),
             "rows": [],
         }
+    rows = result.get("rows", [])
+    row_count = result.get("row_count")
+    if row_count is None:
+        row_count = len(rows)
+
     return {
         "status": result.get("status", "unknown"),
         "job_project": result.get("job_project"),
         "bytes_processed_estimate": result.get("bytes_processed_estimate"),
-        "row_count": result.get("row_count"),
-        "rows": result.get("rows", []),
+        "row_count": row_count,
+        "rows": rows,
         "reason": result.get("reason"),
     }
 
