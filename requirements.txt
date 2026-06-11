@@ -1,0 +1,7 @@
+google-adk
+google-cloud-bigquery
+google-cloud-dataplex
+db-dtypes
+pandas
+pyarrow
+pytest

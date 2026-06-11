@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment files and secrets
+.env
+*.env
+data_analyst_agent/.env
+application_default_credentials.json
+*credentials*.json
+*secret*.json
+*key*.json
+
+# Logs and runtime state
+logs/
+*.log
+.adk/
+*/.adk/
+.sessions/
+.artifacts/
+tmp/
+temp/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# BigQuery / metadata exceptions
+*.json
+!dataset-metadata.json
