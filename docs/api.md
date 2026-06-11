@@ -142,3 +142,39 @@ This API turns the ADK codelab result into a reusable backend service that can b
 - Foundry rule analysis
 - Clinical analytics workflows
 - Internal BI tools
+
+### POST /connectors/enabiz/summarize
+
+Summarizes a PHI-free anonymized e-Nabiz analytics export.
+
+This endpoint validates the export contract before producing a summary.
+
+Example:
+
+    curl -X POST http://127.0.0.1:8080/connectors/enabiz/summarize \
+      -H "Content-Type: application/json" \
+      -d '{"path":"fixtures/anonymized_enabiz_export_sample.json"}'
+
+Expected response fields:
+
+    {
+      "status": "success",
+      "schema_version": "anonymized-enabiz-analytics-v0.1",
+      "case_count": 1,
+      "top_categories": [],
+      "top_diagnosis_codes": [],
+      "missing_or_weak_documents": [],
+      "data_quality_score": 0.86,
+      "data_quality_flags": [],
+      "safe_for_agent_analysis": true
+    }
+
+Safety behavior:
+
+- blocks direct identifiers
+- blocks TCKN-like values
+- blocks email-like values
+- blocks phone-like values
+- blocks raw_text / pdf_text / clinical_note fields
+- requires privacy.phi_free=true
+- requires privacy.raw_text_included=false

@@ -70,3 +70,25 @@ The agent must not produce:
 ## Strategic Role
 
 This contract allows healthcare-related analytics to be connected to AI agents without exposing raw PHI or sensitive clinical text.
+
+## Integration Path
+
+Recommended product flow:
+
+1. `enabiz-capture-tool` captures local browser data.
+2. `enabiz-local-health-assistant` converts local health files into structured local outputs.
+3. A separate anonymized aggregate export is generated.
+4. `controlled-adk-data-analyst-agent` validates and summarizes the export.
+5. Dashboards, companion agents, or policy analytics tools consume only the safe summary.
+
+## API Endpoint
+
+The controlled agent exposes this contract through:
+
+    POST /connectors/enabiz/summarize
+
+The endpoint accepts only a local path to a PHI-free aggregate JSON export.
+
+## Minimum Safe Export Rule
+
+If an export contains raw text or direct identifiers, it must be rejected before agent analysis.

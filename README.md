@@ -297,3 +297,53 @@ Core endpoints:
     GET  /audit
 
 See [API Reference](docs/api.md) for request and response examples.
+
+## e-Nabiz Anonymized Export Connector
+
+This repository includes a PHI-free connector for anonymized e-Nabiz analytics exports.
+
+The connector is designed to consume only aggregate analytics data exported from `enabiz-local-health-assistant`.
+
+It does not accept:
+
+- patient names
+- doctor names
+- TCKN or national identity numbers
+- phone numbers
+- email addresses
+- physical addresses
+- raw PDF text
+- raw clinical notes
+- free-text report bodies
+
+It can safely analyze:
+
+- category counts
+- document completeness
+- diagnosis code frequencies
+- timeline completeness
+- data quality scores
+- missing or weak evidence flags
+
+### Connector API Example
+
+Run the API:
+
+    uvicorn app.main:app --host 0.0.0.0 --port 8080
+
+Call the connector endpoint:
+
+    curl -X POST http://127.0.0.1:8080/connectors/enabiz/summarize \
+      -H "Content-Type: application/json" \
+      -d '{"path":"fixtures/anonymized_enabiz_export_sample.json"}'
+
+Example response fields:
+
+    {
+      "status": "success",
+      "safe_for_agent_analysis": true,
+      "data_quality_score": 0.86,
+      "missing_or_weak_documents": []
+    }
+
+See [e-Nabiz Export Contract](docs/enabiz_export_contract.md) for the privacy boundary.
