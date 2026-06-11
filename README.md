@@ -298,11 +298,11 @@ Core endpoints:
 
 See [API Reference](docs/api.md) for request and response examples.
 
-## e-Nabiz Anonymized Export Connector
+## e-Nabiz PHI-Free Aggregate Export Connector
 
-This repository includes a PHI-free connector for anonymized e-Nabiz analytics exports.
+This repository includes a PHI-free connector for aggregate e-Nabiz analytics exports.
 
-The connector is designed to consume only aggregate analytics data exported from `enabiz-local-health-assistant`.
+The connector is designed to consume only PHI-free aggregate analytics data exported from `enabiz-local-health-assistant`.
 
 It does not accept:
 
@@ -346,7 +346,7 @@ Example response fields:
       "missing_or_weak_documents": []
     }
 
-See [e-Nabiz Export Contract](docs/enabiz_export_contract.md) for the privacy boundary.
+See [e-Nabiz Export Contract](docs/enabiz_export_contract.md) for the privacy boundary and local path safety rules.
 
 ## Real e-Nabiz Export Adapter Plan
 

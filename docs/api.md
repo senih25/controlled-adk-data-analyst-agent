@@ -145,7 +145,7 @@ This API turns the ADK codelab result into a reusable backend service that can b
 
 ### POST /connectors/enabiz/summarize
 
-Summarizes a PHI-free anonymized e-Nabiz analytics export.
+Summarizes a PHI-free aggregate e-Nabiz analytics export.
 
 This endpoint validates the export contract before producing a summary.
 

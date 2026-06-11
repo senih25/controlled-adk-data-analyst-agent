@@ -13,6 +13,7 @@ from app.services.analyst_service import (
     tables,
     summarize_enabiz_export_path,
 )
+from connectors.enabiz_export import EnabizExportValidationError
 
 
 app = FastAPI(
@@ -20,7 +21,6 @@ app = FastAPI(
     description="Safe FastAPI wrapper for controlled BigQuery analysis tools.",
     version="0.1.0",
 )
-
 
 
 @app.get("/")
@@ -93,7 +93,13 @@ def get_top_5_drg() -> dict:
 def get_audit(limit: int = Query(default=50, ge=1, le=500)) -> dict:
     return audit_tail(limit=limit)
 
+
 @app.post("/connectors/enabiz/summarize")
 def summarize_enabiz_export(payload: EnabizExportPathRequest) -> dict:
-    return summarize_enabiz_export_path(payload.path)
-
+    try:
+        return summarize_enabiz_export_path(payload.path)
+    except EnabizExportValidationError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail={"status": "blocked", "reason": str(exc)},
+        ) from exc

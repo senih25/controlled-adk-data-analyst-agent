@@ -4,7 +4,7 @@
 
 This contract defines the safe bridge between enabiz-local-health-assistant and controlled-adk-data-analyst-agent.
 
-The controlled analyst agent must only consume PHI-free aggregate analytics exports.
+The controlled analyst agent must only consume PHI-free aggregate analytics exports. These exports are privacy-preserving aggregates, not legal anonymity claims for small cohorts.
 
 ## Allowed Data
 
@@ -87,7 +87,7 @@ The controlled agent exposes this contract through:
 
     POST /connectors/enabiz/summarize
 
-The endpoint accepts only a local path to a PHI-free aggregate JSON export.
+The endpoint accepts only a local path to a PHI-free aggregate JSON export under an allowed local export root.
 
 ## Minimum Safe Export Rule
 

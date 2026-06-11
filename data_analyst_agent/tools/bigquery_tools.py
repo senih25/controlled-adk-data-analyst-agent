@@ -1,4 +1,11 @@
-from google.cloud import bigquery
+from __future__ import annotations
+
+try:
+    from google.cloud import bigquery
+    BIGQUERY_AVAILABLE = True
+except ModuleNotFoundError:
+    bigquery = None
+    BIGQUERY_AVAILABLE = False
 
 from data_analyst_agent.config import (
     PROJECT_ID,
@@ -20,6 +27,9 @@ _BQ_CLIENT = None
 
 def get_bq_client() -> bigquery.Client:
     """Create the BigQuery client lazily so unit tests can import this module without ADC."""
+    if not BIGQUERY_AVAILABLE:
+        raise RuntimeError("BigQuery client is unavailable in this local environment.")
+
     global _BQ_CLIENT
     if _BQ_CLIENT is None:
         _BQ_CLIENT = bigquery.Client(project=PROJECT_ID)
@@ -59,6 +69,14 @@ def list_allowed_tables() -> dict:
 
 def list_cms_medicare_tables(limit: int = 10) -> dict:
     """List table names in bigquery-public-data.cms_medicare."""
+    if not BIGQUERY_AVAILABLE:
+        return {
+            "status": "blocked",
+            "reason": "BigQuery client is unavailable in this local environment.",
+            "dataset": "bigquery-public-data.cms_medicare",
+            "tables": [],
+        }
+
     query = f"""
     SELECT table_name
     FROM `bigquery-public-data.cms_medicare.INFORMATION_SCHEMA.TABLES`
@@ -102,6 +120,14 @@ def get_table_schema(table_key_or_id: str) -> dict:
             "allowed_tables": ALLOWED_TABLES,
         }
 
+    if not BIGQUERY_AVAILABLE:
+        return {
+            "status": "blocked",
+            "reason": "BigQuery client is unavailable in this local environment.",
+            "requested_table": table_key_or_id,
+            "allowed_tables": ALLOWED_TABLES,
+        }
+
     table = get_bq_client().get_table(table_id)
 
     result = {
@@ -135,6 +161,14 @@ def get_inpatient_charges_2015_schema() -> dict:
 
 def top_5_drg_by_discharges() -> dict:
     """Return top 5 DRG definitions by total discharges from inpatient_charges_2015."""
+    if not BIGQUERY_AVAILABLE:
+        return {
+            "status": "blocked",
+            "reason": "BigQuery client is unavailable in this local environment.",
+            "source_table": "bigquery-public-data.cms_medicare.inpatient_charges_2015",
+            "results": [],
+        }
+
     query = """
     SELECT
       drg_definition,
@@ -191,6 +225,18 @@ def run_safe_select_query(sql: str) -> dict:
         return {
             "status": "blocked",
             "reason": "Query must use only allowlisted tables and fully qualified table names inside backticks.",
+            "allowed_tables": ALLOWED_TABLES,
+        }
+
+    if not BIGQUERY_AVAILABLE:
+        write_audit_log({
+            "tool": "run_safe_select_query",
+            "status": "blocked",
+            "reason": "bigquery_client_unavailable",
+        })
+        return {
+            "status": "blocked",
+            "reason": "BigQuery client is unavailable in this local environment.",
             "allowed_tables": ALLOWED_TABLES,
         }
 

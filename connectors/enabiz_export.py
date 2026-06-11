@@ -29,6 +29,17 @@ FORBIDDEN_KEYS = {
     "free_text",
 }
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+PRODUCER_REPO_ROOT = REPO_ROOT.parent / "enabiz-local-health-assistant"
+ALLOWED_EXPORT_ROOTS = (
+    (REPO_ROOT / "fixtures").resolve(),
+    (REPO_ROOT / "exports").resolve(),
+    (PRODUCER_REPO_ROOT / "exports").resolve(),
+)
+
+SUPPORTED_SCHEMA_VERSION = "anonymized-enabiz-analytics-v0.1"
+EXPECTED_SOURCE = "enabiz-local-health-assistant"
+
 TCKN_PATTERN = re.compile(r"\b[1-9][0-9]{10}\b")
 EMAIL_PATTERN = re.compile(r"[^@\s]+@[^@\s]+\.[^@\s]+")
 PHONE_PATTERN = re.compile(r"(\+90|0)?\s?5[0-9]{2}\s?[0-9]{3}\s?[0-9]{2}\s?[0-9]{2}")
@@ -40,6 +51,29 @@ class EnabizExportValidationError(ValueError):
 
 def _normalize_key(key: str) -> str:
     return key.strip().lower().replace("-", "_").replace(" ", "_")
+
+
+def _is_within_allowed_root(path: Path) -> bool:
+    return any(path == root or root in path.parents for root in ALLOWED_EXPORT_ROOTS)
+
+
+def _resolve_export_path(path: str | Path) -> Path:
+    export_path = Path(path).expanduser()
+
+    if export_path.suffix.lower() != ".json":
+        raise EnabizExportValidationError("Export path must point to a .json file")
+
+    resolved = export_path.resolve()
+    if not _is_within_allowed_root(resolved):
+        allowed_roots = ", ".join(str(root) for root in ALLOWED_EXPORT_ROOTS)
+        raise EnabizExportValidationError(
+            f"Export path must stay within an allowed local export root: {allowed_roots}"
+        )
+
+    if not resolved.is_file():
+        raise EnabizExportValidationError(f"Export file not found at {resolved}")
+
+    return resolved
 
 
 def validate_no_phi(value: Any, path: str = "$") -> None:
@@ -74,10 +108,14 @@ def validate_no_phi(value: Any, path: str = "$") -> None:
 def validate_contract(data: dict[str, Any]) -> None:
     required_top_level_keys = {
         "schema_version",
+        "source",
         "export_type",
         "privacy",
         "cohort",
         "category_counts",
+        "diagnosis_frequency",
+        "document_completeness",
+        "timeline_completeness",
         "data_quality",
     }
 
@@ -85,6 +123,16 @@ def validate_contract(data: dict[str, Any]) -> None:
     if missing:
         raise EnabizExportValidationError(
             f"Missing required top-level keys: {', '.join(missing)}"
+        )
+
+    if data.get("schema_version") != SUPPORTED_SCHEMA_VERSION:
+        raise EnabizExportValidationError(
+            f"schema_version must be {SUPPORTED_SCHEMA_VERSION}"
+        )
+
+    if data.get("source") != EXPECTED_SOURCE:
+        raise EnabizExportValidationError(
+            f"source must be {EXPECTED_SOURCE}"
         )
 
     if data.get("export_type") != "aggregate_analytics":
@@ -97,11 +145,14 @@ def validate_contract(data: dict[str, Any]) -> None:
     if privacy.get("raw_text_included") is not False:
         raise EnabizExportValidationError("privacy.raw_text_included must be false")
 
+    if privacy.get("pseudonymized") is not True:
+        raise EnabizExportValidationError("privacy.pseudonymized must be true")
+
     validate_no_phi(data)
 
 
 def load_enabiz_anonymized_export(path: str | Path) -> dict[str, Any]:
-    export_path = Path(path)
+    export_path = _resolve_export_path(path)
     data = json.loads(export_path.read_text(encoding="utf-8"))
 
     if not isinstance(data, dict):
@@ -135,6 +186,7 @@ def summarize_enabiz_export(data: dict[str, Any]) -> dict[str, Any]:
     return {
         "status": "success",
         "schema_version": data.get("schema_version"),
+        "source": data.get("source"),
         "case_count": cohort.get("case_count"),
         "date_min": cohort.get("date_min"),
         "date_max": cohort.get("date_max"),

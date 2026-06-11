@@ -1,3 +1,5 @@
+import json
+
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -48,6 +50,7 @@ def test_audit_endpoint():
     assert data["status"] == "success"
     assert "entries" in data
 
+
 def test_enabiz_connector_summarize_endpoint():
     response = client.post(
         "/connectors/enabiz/summarize",
@@ -60,3 +63,17 @@ def test_enabiz_connector_summarize_endpoint():
     assert data["data_quality_score"] == 0.86
     assert len(data["missing_or_weak_documents"]) == 2
 
+
+def test_enabiz_connector_rejects_unsafe_path(tmp_path):
+    unsafe_path = tmp_path / "unsafe_export.json"
+    unsafe_path.write_text(json.dumps({"ok": True}), encoding="utf-8")
+
+    response = client.post(
+        "/connectors/enabiz/summarize",
+        json={"path": str(unsafe_path)},
+    )
+
+    assert response.status_code == 400
+    data = response.json()
+    assert data["detail"]["status"] == "blocked"
+    assert "allowed local export root" in data["detail"]["reason"]
