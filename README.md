@@ -337,6 +337,14 @@ Call the connector endpoint:
       -H "Content-Type: application/json" \
       -d '{"path":"fixtures/anonymized_enabiz_export_sample.json"}'
 
+If the consumer token gate is enabled locally:
+
+    CONTROLLED_ADK_HANDOFF_TOKEN=dev-local-handoff-token
+    curl -X POST http://127.0.0.1:8080/connectors/enabiz/summarize \
+      -H "Content-Type: application/json" \
+      -H "X-Controlled-ADK-Handoff-Token: dev-local-handoff-token" \
+      -d '{"path":"../enabiz-local-health-assistant/exports/anonymized/anonymized_enabiz_analytics.json"}'
+
 Example response fields:
 
     {

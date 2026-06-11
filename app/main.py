@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from fastapi import FastAPI, HTTPException, Query
+import os
+from secrets import compare_digest
+
+from fastapi import FastAPI, HTTPException, Query, Header
 
 from app.schemas import EnabizExportPathRequest, HealthResponse, QueryRequest, QueryResponse
 from app.services.analyst_service import (
@@ -14,6 +17,9 @@ from app.services.analyst_service import (
     summarize_enabiz_export_path,
 )
 from connectors.enabiz_export import EnabizExportValidationError
+
+HANDOFF_TOKEN_HEADER = "X-Controlled-ADK-Handoff-Token"
+HANDOFF_TOKEN_ENV = "CONTROLLED_ADK_HANDOFF_TOKEN"
 
 
 app = FastAPI(
@@ -95,7 +101,11 @@ def get_audit(limit: int = Query(default=50, ge=1, le=500)) -> dict:
 
 
 @app.post("/connectors/enabiz/summarize")
-def summarize_enabiz_export(payload: EnabizExportPathRequest) -> dict:
+def summarize_enabiz_export(
+    payload: EnabizExportPathRequest,
+    handoff_token: str | None = Header(default=None, alias=HANDOFF_TOKEN_HEADER),
+) -> dict:
+    _validate_handoff_token(handoff_token)
     try:
         return summarize_enabiz_export_path(payload.path)
     except EnabizExportValidationError as exc:
@@ -103,3 +113,18 @@ def summarize_enabiz_export(payload: EnabizExportPathRequest) -> dict:
             status_code=400,
             detail={"status": "blocked", "reason": str(exc)},
         ) from exc
+
+
+def _validate_handoff_token(handoff_token: str | None) -> None:
+    expected_token = os.getenv(HANDOFF_TOKEN_ENV)
+    if not expected_token:
+        return
+
+    if handoff_token is None or not compare_digest(handoff_token, expected_token):
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "status": "blocked",
+                "reason": "Controlled ADK handoff token is missing or invalid.",
+            },
+        )

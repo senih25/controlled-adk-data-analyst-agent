@@ -178,3 +178,4 @@ Safety behavior:
 - blocks raw_text / pdf_text / clinical_note fields
 - requires privacy.phi_free=true
 - requires privacy.raw_text_included=false
+- if `CONTROLLED_ADK_HANDOFF_TOKEN` is set, requires the `X-Controlled-ADK-Handoff-Token` header
